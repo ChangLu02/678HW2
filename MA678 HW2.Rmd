@@ -337,13 +337,42 @@ In general, $\beta$=0.3 means that the relationship between price and quantity p
 *Building regression models*: Return to the teaching evaluations data from Exercise 10.6. Fit regression models predicting evaluations given many of the inputs in the dataset. Consider interactions, combinations of predictors, and transformations, as appropriate. Consider several  models, discuss in detail the final model that you choose, and also explain why you chose it rather than the others you had considered. 
 
 ```{r}
+library(tidyverse)
+library(broom)
 
+
+data <- read.csv("beauty.csv")
+
+# Model 1: Basic Linear Model
+model_1 <- lm(eval ~ beauty + female + age + minority + nonenglish + lower, data = data)
+summary(model_1)
 ```
+```{r}
+# Model 2: Adding interaction term (Beauty * Female)
+model_2 <- lm(eval ~ beauty * female + age + minority + nonenglish + lower, data = data)
+summary(model_2)
+```
+```{r}
+# Model 3: Log transformation of age
+data$log_age <- log(data$age + 1)
+model_3 <- lm(eval ~ beauty * female + log_age + minority + nonenglish + lower, data = data)
+summary(model_3)
 
+
+AIC(model_1, model_2, model_3)
+```
+The best is model2 for it has the least AIC.
 
 ## 12.14
 Prediction from a fitted regression: Consider one of the fitted models for mesquite leaves, for example `fit_4`, in Section 12.6. Suppose you wish to use this model to make inferences about the average mesquite yield in a new set of trees whose predictors are in data frame called  new_trees. Give R code to obtain an estimate and standard error for this population average. You do not need to make the prediction; just give the code. 
 
 ```{r}
-
+library(rstanarm)
+mesquite <- read_csv("mesquite_cleaned.csv")
+mesquite$canopy_volume <- mesquite$diam1 * mesquite$diam2 * mesquite$canopy_height
+mesquite$canopy_area <- mesquite$diam1 * mesquite$diam2
+mesquite$canopy_shape <- mesquite$diam1 / mesquite$diam2
+fit_4 <- stan_glm(formula = log(weight) ~ log(canopy_volume) + log(canopy_area) +
+log(canopy_shape) + log(total_height) + log(density) + group, data=mesquite,refresh = 0)
+summary(fit_4)
 ```
