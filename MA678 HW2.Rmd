@@ -1,5 +1,6 @@
 ---
 title: "MA678 Homework 2"
+author: "Chang Lu"
 date: "9/20/2022"
 output: pdf_document
 ---
@@ -15,6 +16,13 @@ knitr::opts_chunk$set(echo = TRUE)
 Use R to fit a linear regression model predicting $y$ from $x_1$, $x_2$, using the first 40 data points in the file. Summarize the inferences and check the fit of your model.
 
 ```{r}
+pyth_data <- read.table("pyth.txt",header = TRUE)
+pyth_data_subset <- pythdata[0:40, ]
+pyth_model <- lm(y ~ x1 + x2, data = pyth_data_subset)
+summary(pyth_model)
+pyth_residuals <- residuals(pyth_model)
+plot(fitted(pyth_model),pyth_residuals)
+abline(h = 0, col="red")
 
 ```
 
@@ -22,24 +30,36 @@ Use R to fit a linear regression model predicting $y$ from $x_1$, $x_2$, using t
 Display the estimated model graphically as in Figure 10.2
 
 ```{r}
-
+plot(pyth_model)
 ```
 
 ### (c) 
 Make a residual plot for this model. Do the assumptions appear to be met?
 
 ```{r}
+pyth_residuals <- residuals(pyth_model)
+plot(pyth_residuals)
+abline(h = 0, col="red")
 
 ```
+1. The residuals seem randomly scattered around the horizontal line (zero), with no clear pattern, which suggests that linearity is met.
 
+2. The spread of residuals seems fairly consistent across the index range, indicating that homoscedasticity is likely met.
+
+As a result, the model assumptions seem to be generally met.
 
 ### (d) 
 Make predictions for the remaining 20 data points in the file. How confident do you feel about these predictions?
 
 ```{r}
+newpyth_data <- pyth_data[41:60,]
+pyth_prediction <- predict(pyth_model, data = newpyth_data)
+pyth_prediction_interval <-  predict(pyth_model, data = newpyth_data, interval = "confidence")
+pyth_prediction_interval
 
 ```
 
+I would feel moderately confident in these predictions, especially for those with narrower confidence intervals, which indicating high precision and showing the model is quite confident with the predictions.
 
 ## 12.5 
 *Logarithmic transformation and regression*: Consider the following regression:
@@ -47,7 +67,7 @@ $$\log(\text{weight})=-3.8+2.1 \log(\text{height})+\text{error,} $$
 with errors that have standard deviation 0.25. Weights are in pounds and heights are in inches.
 
 ### (a) 
-Fill in the blanks: Approximately 68% of the people will have weights within a factor of ______ and ______ of their predicted values from the regression.
+Fill in the blanks: Approximately 68% of the people will have weights within a factor of 0.778($e^{-0.25}$) and 1.284($e^{0.25}$) of their predicted values from the regression.
 
 ### (b) 
 Using pen and paper, sketch the regression line and scatterplot of log(weight) versus log(height) that make sense and are consistent with the fitted model. Be sure to label the axes of your graph.
